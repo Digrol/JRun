@@ -17,6 +17,7 @@
 #include <string>
 #include <vector>
 #include <locale>
+#include <signal.h>
 #include "log.h"
 #include "utils.h"
 #include "binary.h"
@@ -28,6 +29,12 @@ using std::wstring;
 using namespace Denom;
 
 // ---------------------------------------------------------------------------------------------------------------------
+static void printUsage()
+{
+	Console::println( L"Usage:  jrun.exe <java-filename>" );
+}
+
+// ---------------------------------------------------------------------------------------------------------------------
 static void OnInvalidParameterInCRT( const wchar_t* expression, const wchar_t* function,
 	const wchar_t* file, unsigned int line, uintptr_t pReserved )
 {
@@ -37,26 +44,40 @@ static void OnInvalidParameterInCRT( const wchar_t* expression, const wchar_t* f
 }
 
 // ---------------------------------------------------------------------------------------------------------------------
+static void SignalHandler( int signal )
+{
+	printUsage();
+	exit( 1 );
+}
+
+// ---------------------------------------------------------------------------------------------------------------------
 int Main( const vector<wstring>& args )
 {
 // 	for( int i = 0; i < args.size(); ++i )
 // 		Console::println( COLOR_GREEN, L"Аргумент %d: %ls", i, args[ i ].c_str() );
 
-
-	Console::println( args[ 1 ] );
-	Binary b(100, 0x34);
-	b.saveToFile( args[ 1 ] );
-
+	Binary b;
+	b.loadFromFile( args[ 1 ] );
+	wstring ws = args[ 1 ] + L".копия";
+	b.saveToFile( ws );
+//	Console::println( b.Hex() );
 	return 0;
 }
 
 // ---------------------------------------------------------------------------------------------------------------------
 int main( int argc, char* argv[] )
 {
+	signal( SIGINT,  SignalHandler );
+	signal( SIGABRT, SignalHandler );
+	signal( SIGTERM, SignalHandler );
+	signal( SIGSEGV, SignalHandler );
+
 	// Disable the message box for assertions.
-	_set_invalid_parameter_handler( OnInvalidParameterInCRT );
-	#ifdef _MSC_VER
-		_CrtSetReportMode( _CRT_ASSERT, 0 );
+	#ifdef _WIN32
+		_set_invalid_parameter_handler( OnInvalidParameterInCRT );
+		#ifdef _MSC_VER
+			_CrtSetReportMode( _CRT_ASSERT, 0 );
+		#endif
 	#else
 	#endif
 
@@ -66,7 +87,7 @@ int main( int argc, char* argv[] )
 		vector< wstring > params = convertCommandLine( argc, argv );
 		if( params.size() < 2 )
 		{
-			Console::println( L"Usage:  jrun.exe <java-filename>" );
+			printUsage();
 			exit( 1 );
 		}
 
@@ -76,7 +97,7 @@ int main( int argc, char* argv[] )
 	{
 		/// TODO: cross
 // 		ReduceCallStack( ex.call_stack, __FUNCTION__ );
-// 		Console::println( FormatExceptionMessage( ex ).c_str() );
+		Console::println( FormatExceptionMessage( ex ).c_str() );
 		return (ex.code != 0) ? ex.code : 1;
 	}
 	catch( const std::exception& ex )

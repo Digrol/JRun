@@ -32,7 +32,9 @@
 static std::wstring strToWstring( const char* str )
 {
 	int size = MultiByteToWideChar( CP_ACP, 0, str, -1, nullptr, 0 );
-	std::wstring sw( size, 0 );
+	if( size <= 0 )
+		return L"";
+	std::wstring sw( size - 1, 0 );
 	MultiByteToWideChar( CP_ACP, 0, str, -1, &sw[ 0 ], size );
 	return sw;
 }

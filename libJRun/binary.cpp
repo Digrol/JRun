@@ -19,12 +19,7 @@
 #include "exception.h"
 #include "binary.h"
 #include "utils.h"
-// #include <sys/stat.h>
-// #include <string.h>
-// #include <stdlib.h>
-// #include <fstream>
-// #include <iostream>
-// #include <iterator>
+#include <sys/stat.h>
 
 using std::wstring;
 
@@ -243,25 +238,36 @@ wstring Binary::hex( uint32_t oneSpace, uint32_t twoSpaces, uint32_t newLine, ui
 	return res;
 }
 
-/*
+static uint64_t getFileSize( const wstring& filename )
+{
+	#ifdef _WIN32
+		struct __stat64 fileStat;
+		MUST_M( _wstat64( filename.c_str(), &fileStat ) == 0, L"Can't get file size: " + filename );
+		return static_cast<uint64_t>(fileStat.st_size);
+	#else
+		struct stat fileStat;
+		MUST_M( stat( w2s(filename).c_str(), &fileStat ) == 0, L"Can't get file size: " + filename );
+		return static_cast<uint64_t>(fileStat.st_size);
+	#endif
+}
+
 // ---------------------------------------------------------------------------------------------------------------------
 Binary& Binary::loadFromFile( const wstring& filename )
 {
 	clear();
 
-	struct stat statFile;
-	MUST_M( stat( w2s( filename ).c_str(), &statFile ) == 0, L"Can't get file size: " + filename );
+	uint64_t fileSize = getFileSize( filename );
+	if (fileSize == 0) return *this;
 
-	if( statFile.st_size == 0 )
-	{
-		return *this;
-	}
 
-	FILE* f = NULL;
-	errno_t err = fopen_s( &f, w2s( filename ).c_str(), "rb" );
-	MUST_M( (err == 0) && (f != NULL), L"Can't open file: " + filename );
+	#ifdef _WIN32
+		FILE* f = _wfopen( filename.c_str(), L"rb" );
+	#else
+		FILE* f = fopen( w2s( filename ).c_str(), "rb" );
+	#endif // _WIN32
+	MUST_M( f != NULL, L"Can't open file: " + filename );
 
-	resize( statFile.st_size );
+	resize( fileSize );
 	uint8_t* p = &(*this)[ 0 ];
 
 	uint8_t buf[ 60000 ];
@@ -279,7 +285,7 @@ Binary& Binary::loadFromFile( const wstring& filename )
 
 	return *this;
 }
-*/
+
 // ---------------------------------------------------------------------------------------------------------------------
 void Binary::saveToFile( const std::wstring& filename )
 {
@@ -288,7 +294,6 @@ void Binary::saveToFile( const std::wstring& filename )
 	#else
 		FILE* f = fopen( w2s(filename).c_str(), "wb" );
 	#endif // _WIN32
-
 	MUST_M( f != NULL, L"Can't open file: " + filename );
 
 	size_t written = 0;
