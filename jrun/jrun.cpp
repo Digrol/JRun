@@ -30,8 +30,8 @@ using namespace Denom;
 static void OnInvalidParameterInCRT( const wchar_t* expression, const wchar_t* function,
 	const wchar_t* file, unsigned int line, uintptr_t pReserved )
 {
-//	Console::println( L"Invalid parameter detected in function %s.\nFile: %s Line: %d\n", function, file, line );
-//	Console::println( L"Expression: %s\n", expression );
+	Console::println( L"Invalid parameter in function %s.\nFile: %s Line: %d\n", function, file, line );
+	Console::println( L"Expression: %s\n", expression );
 	exit(1);
 }
 
@@ -58,6 +58,7 @@ int main( int argc, char* argv[] )
 	}
  	catch( Denom::Exception& ex )
 	{
+		/// TODO: cross
 // 		ReduceCallStack( ex.call_stack, __FUNCTION__ );
 // 		Console::println( FormatExceptionMessage( ex ).c_str() );
 		return (ex.code != 0) ? ex.code : 1;

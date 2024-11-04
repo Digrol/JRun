@@ -15,3 +15,9 @@ add_executable(jrun
 )
 
 target_compile_features(jrun PUBLIC cxx_std_17)
+
+if (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+    target_compile_options(jrun PRIVATE /utf-8)
+else()
+    target_compile_options(jrun PRIVATE -finput-charset=UTF-8)
+endif()
