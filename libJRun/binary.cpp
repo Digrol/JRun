@@ -174,7 +174,7 @@ wstring Binary::Hex( uint32_t oneSpace, uint32_t twoSpaces, uint32_t newLine, ui
 	}
 
 	wstring res;
-	res.reserve( size() * 3 );
+	res.reserve( size() * (2 + (oneSpace ? 1 : 0)) );
 
 	wstring shiftStr( lineShift, L' ' );
 	res += shiftStr;
@@ -203,7 +203,6 @@ wstring Binary::Hex( uint32_t oneSpace, uint32_t twoSpaces, uint32_t newLine, ui
 	}
 	return res;
 }
-
 
 // ---------------------------------------------------------------------------------------------------------------------
 wstring Binary::hex( uint32_t oneSpace, uint32_t twoSpaces, uint32_t newLine, uint32_t lineShift ) const
@@ -280,23 +279,27 @@ Binary& Binary::loadFromFile( const wstring& filename )
 
 	return *this;
 }
-
+*/
 // ---------------------------------------------------------------------------------------------------------------------
 void Binary::saveToFile( const std::wstring& filename )
 {
-	FILE* f = NULL;
-	errno_t err = fopen_s( &f, w2s( filename ).c_str(), "wb" );
-	MUST_M( (err == 0) && (f != NULL), L"Can't open file: " + filename );
+	#ifdef _WIN32
+		FILE* f = _wfopen( filename.c_str(), L"wb" );
+	#else
+		FILE* f = fopen( w2s(filename).c_str(), "wb" );
+	#endif // _WIN32
 
-	size_t bytes_write = 0;
+	MUST_M( f != NULL, L"Can't open file: " + filename );
+
+	size_t written = 0;
 	if( !empty() )
 	{
-		bytes_write = fwrite( &(*this)[ 0 ], 1, size(), f );
+		written = fwrite( &(*this)[ 0 ], 1, size(), f );
 	}
 	fflush( f );
 	fclose( f );
 
-	MUST_M( bytes_write == size(), L"Can't write all data from Binary to file" );
+	MUST_M( written == size(), L"Can't write all data from Binary to file" );
 }
 
 // ---------------------------------------------------------------------------------------------------------------------
@@ -547,5 +550,4 @@ Binary operator&(const Binary& left, const Binary& right)
 	return result;
 }
 
-*/
 } // namespace Denom

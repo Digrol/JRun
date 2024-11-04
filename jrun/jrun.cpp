@@ -19,6 +19,7 @@
 #include <locale>
 #include "log.h"
 #include "utils.h"
+#include "binary.h"
 #include "exception.h"
 
 using std::vector;
@@ -36,25 +37,40 @@ static void OnInvalidParameterInCRT( const wchar_t* expression, const wchar_t* f
 }
 
 // ---------------------------------------------------------------------------------------------------------------------
-void Main( const vector<wstring>& args )
+int Main( const vector<wstring>& args )
 {
-	for( int i = 0; i < args.size(); ++i )
-		Console::println( COLOR_GREEN, L"Аргумент %d: %ls", i, args[ i ].c_str() );
+// 	for( int i = 0; i < args.size(); ++i )
+// 		Console::println( COLOR_GREEN, L"Аргумент %d: %ls", i, args[ i ].c_str() );
 
-	for( uint32_t c = 0; c < 16; ++c )
-		Console::println( c, L"ТЕКСТ текст" );
 
-	for( uint32_t c = 0; c < 16; ++c )
-		Console::println( c << 4, L"ТЕКСТ текст" );
+	Console::println( args[ 1 ] );
+	Binary b(100, 0x34);
+	b.saveToFile( args[ 1 ] );
+
+	return 0;
 }
 
 // ---------------------------------------------------------------------------------------------------------------------
 int main( int argc, char* argv[] )
 {
+	// Disable the message box for assertions.
+	_set_invalid_parameter_handler( OnInvalidParameterInCRT );
+	#ifdef _MSC_VER
+		_CrtSetReportMode( _CRT_ASSERT, 0 );
+	#else
+	#endif
+
+	int retCode = 0;
 	try
 	{
 		vector< wstring > params = convertCommandLine( argc, argv );
-		Main( params );
+		if( params.size() < 2 )
+		{
+			Console::println( L"Usage:  jrun.exe <java-filename>" );
+			exit( 1 );
+		}
+
+		retCode = Main( params );
 	}
  	catch( Denom::Exception& ex )
 	{

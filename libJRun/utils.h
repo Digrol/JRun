@@ -37,7 +37,7 @@ void sleep( uint32_t milliSec );
 
 // ---------------------------------------------------------------------------------------------------------------------
 /// Generate pseudo random number
-uint32_t rangedRand( uint32_t rangeMin, uint32_t rangeMax );
+uint32_t RangedRand( uint32_t rangeMin, uint32_t rangeMax );
 
 // ---------------------------------------------------------------------------------------------------------------------
 /// Convert string coded in UTF-8 to wstring (UTF-16)

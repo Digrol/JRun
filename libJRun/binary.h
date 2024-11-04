@@ -36,7 +36,7 @@ private:
 public:
 
 	// ---------------------------------------------------------------------------------------------------------------------
-	// Copy constructor and destructor - from compiler
+	/// Copy constructor and destructor - from compiler
 
 	// ---------------------------------------------------------------------------------------------------------------------
 	/// Create array, containing 'count' bytes 'val' (.
@@ -69,9 +69,9 @@ public:
 	/// @param twoSpaces - after 'twoSpaces' of bytes 2 spaces("  ") will be inserted.
 	/// @param newLine - when insert '\n'.
 	/// @param lineShift - shift each line with 'lineShift' spaces.
-	std::wstring Hex( uint32_t oneSpace = 1, uint32_t twoSpaces = 0, uint32_t newLine = 0, uint32_t lineShift = 0 ) const;
+	std::wstring Hex( uint32_t oneSpace = 0, uint32_t twoSpaces = 0, uint32_t newLine = 0, uint32_t lineShift = 0 ) const;
 	/// All letters are lowercase
-	std::wstring hex( uint32_t oneSpace = 1, uint32_t twoSpaces = 0, uint32_t newLine = 0, uint32_t lineShift = 0 ) const;
+	std::wstring hex( uint32_t oneSpace = 0, uint32_t twoSpaces = 0, uint32_t newLine = 0, uint32_t lineShift = 0 ) const;
 
 	// ---------------------------------------------------------------------------------------------------------------------
 	/// Interpret array as unsigned integer.
